@@ -66,7 +66,15 @@ docker compose up -d
 
 This starts a local Postgres instance matching `DATABASE_URI` in `.env.example` (port `5433`, to avoid clashing with any local Postgres install on `5432`).
 
-### 5. Run the development server
+### 5. Generate the admin import map
+
+```bash
+pnpm generate:importmap
+```
+
+Required once after a fresh clone/install, before your first `/admin` load — Payload's admin panel resolves custom/plugin client components (e.g. the S3 storage adapter's upload handler) through a generated `importMap.js`, and a fresh checkout won't have one yet. Skipping this step causes a `PayloadComponent not found in importMap` console error on `/admin`. You generally won't need to re-run it manually afterward — the dev server regenerates it automatically as your config changes.
+
+### 6. Run the development server
 
 ```bash
 pnpm dev
@@ -208,6 +216,9 @@ The **email capture modal** (configured under **Globals → Site Settings**) use
 8. Remove or adapt any features the client doesn't need (e.g. the podcast/episodes system, if not applicable).
 
 ## Troubleshooting
+
+**Console error: `PayloadComponent not found in importMap` (e.g. `@payloadcms/storage-s3/client#S3ClientUploadHandler`) when opening `/admin`.**
+The admin import map hasn't been generated yet — this happens on a fresh clone before the dev server has had a chance to build it. Run `pnpm generate:importmap`, then restart `pnpm dev` and reload `/admin`. See [Getting Started, step 5](#5-generate-the-admin-import-map).
 
 **Can't get past the `/admin/create-first-user` screen (Role dropdown hangs).**
 The app's `onInit` hook (`src/payload.config.ts`) automatically creates a default admin account on first startup so this screen never needs to be used:
